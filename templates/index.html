@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Django Slack</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
+  <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <script>
+  var socket;
+    $(document).ready(function(){
+      socket = io.connect('localhost', {port:4000});
+      socket.emit('create', '{{ chat }}');
+      socket.on('connect', function(){
+        console.log("connect");
+      });
+      
+      var entry_el = $('.comment');
+               
+      socket.on('message', function(message) {
+        //Escape HTML characters
+        var data = message.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        
+        //Append message to the bottom of the list
+        data = data.split(':');
+        var app;
+        if(data[0] == "{{user.username|safe }}"){
+          app = '<div class="panel panel-success" style="width:30%"><div class="panel-heading">'+data[0]+'</div><div class="panel-body">'+data[1]+'</div></div>';
+        }
+        else{
+          app = '<div class="panel panel-warning" style="width:30%;display:block;margin-left:  auto;margin-right: 0;"><div class="panel-heading">'+data[0]+'</div><div class="panel-body">'+data[1]+'</div></div>'
+        }
+        $('#comments').append(app);
+        window.scrollBy(0, 10000000000);
+        entry_el.focus();
+      });
+                     
+      entry_el.keypress(function(event){
+        //When enter is pressed send input value to node server
+        if(event.keyCode != 13) return;
+        var msg = entry_el.attr('value');
+        if(msg){
+           socket.emit('send_message', "{{ chat }}~"+msg , function(data){
+                console.log("{{ chat }}~"+msg);
+           });
+        
+        //Clear input value   
+        entry_el.attr('value', '');
+       }
+      });
+    });
+          function typ(){
+        var msg = $('.comment').val();
+        if(msg){
+           socket.emit('send_message', "{{ chat }}~"+msg , function(data){
+                console.log("{{ chat }}~"+msg);
+           });
+        
+        //Clear input value   
+         $('.comment').val('');
+        }
+      }
+
+  </script>
+</head>
+<body>
+<div class="box">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Slack Clone</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/logout/">logged in as {{ user.username }}, Logout?</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+  <div class="div1">
+  <div class="container-fluid">
+    <h2> Channel name : {{ chat }} </h2>
+    <div id="comments" style="overflow-y:auto">
+        {% for comment in comments %}
+          {% if comment.user|safe == user.username|safe %}
+          <div class="panel panel-success" style="width:30%"><div class="panel-heading">{{comment.user}}</div><div class="panel-body">{{comment.text}}</div></div>
+          {% else %}
+          <div class="panel panel-warning" style="width:30%;display:block;margin-left:  auto;margin-right: 0;"><div class="panel-heading">{{comment.user}}</div><div class="panel-body">{{comment.text}}</div></div>
+          {% endif %}
+        {% endfor %}
+    </div>
+    <br/>
+     <div class="input-group">
+      <input type="text" class="form-control comment" placeholder="Type..">
+      <span class="input-group-btn">
+        <button class="btn btn-default" onclick="typ()" type="button">Send</button>
+      </span>
+    </div>
+    <br/>
+    <br/>
+    {% if users %}
+    <select multiple>
+    {% for usrr in users %}
+    <option value="{{usrr}}">{{usrr}}</option>
+    {% endfor %}
+    </select>
+    {% endif %}
+  </div>
+  </div>
+  <div class="div2">
+    <div class="container-fluid">
+      <h3>Users in this channel</h3>
+      <br/>
+      {{cnl.admin}} <br/>
+      {% for i in access_user %}
+        {{i}} <br/>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+</body>
+<style type="text/css">
+div.box {
+  width:100%;overflow:auto;
+
+}
+
+div.div1 {
+  float:left;
+  width: 80%;height: 100%;
+}
+
+div.div2 {
+  background: #cccccc;
+  float:right;
+  width: 20%;height: 500px;
+}
+
+</style>
+</html>

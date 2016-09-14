@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Django{% endblock %}
+{% block content %}
+<div class="box">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Slack Clone</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">logged in as {{ user.username }}, Logout?</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<div class="div1">
+    <div class="container-fluid">
+        {%if room.count > 0 %}
+        Available channels<br/>
+        {% endif %}
+        {% for e in room %}
+         <li><a href="/channel/{{e.channel}}/">{{e.channel}}</a></li>
+        {% endfor %}
+        <br/><br/>
+        {%if p_room.count > 0 %}
+        Private channels<br/>
+        {%endif%}
+        {% for e in p_room %}
+         <li><a href="/p_channel/{{e}}/">{{e}}</a></li>
+        {% endfor %}
+        <br/>
+        <hr>
+        <br/>
+        <span> Create New Channel</span> <br/><br/>
+        <input type="text" name="page_name" id="room" placeholder = "typr your channel name"/><button onclick="sub()">create</button>
+        <br/><br/><br/> <span> Create New Private Channel </span> <br/><br/>
+        <input type="text" name="page_name" id="proom" placeholder = "typr your channel name"/><button onclick="sub1()">create</button>
+        <br/><br/>
+    </div>
+</div>
+<div class="div2">
+        <h3> Users in this channel</h3>
+        <br/>
+        <div class="container-fluid">
+            {% for i in access_user %}
+              {{i}} <br/>
+            {% endfor %}
+        </div>
+</div>
+</div>
+<script type="text/javascript">
+function sub() {
+	var room = document.getElementById('room').value;
+	window.location = '/channel/'+room;
+}
+function sub1() {
+    var room = document.getElementById('proom').value;
+    window.location = '/p_channel/'+room;
+}
+</script>
+<style type="text/css">
+div.box {
+  width:100%;overflow:auto;
+
+}
+
+div.div1 {
+  float:left;
+  width: 80%;height: 100%;
+}
+
+div.div2 {
+  background:#cccccc;
+  float:right;
+  width: 20%;height: 500px;
+}
+
+span{
+    font-size: 20px;
+    color:green;
+}
+
+
+</style>
+{% endblock %}

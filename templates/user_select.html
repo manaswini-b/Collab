@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Django{% endblock %}
+{% block head %}Welcome to Django{% endblock %}
+{% block content %}
+    <p> {{ user.username }}, Select users for your channel !!!</p>
+    {% for u in Comments.user %}
+    	<form action="">
+		<input type="checkbox" name="{{u}}" value={{u}}>u<br>
+    <br/><br/>
