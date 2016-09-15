@@ -2,11 +2,37 @@
 {% block title %}User Registration{% endblock %}
 {% block head %}User Registration{% endblock %}
 {% block content %}
-    <form method="post" action=".">{% csrf_token %}
+<div class="box">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a  class="navbar-brand" href="/">Slack Clone</a>
+    </div>
+   </div>
+</nav>
+</div> 
+
+    <form method="post" action="." style="margin:10px 10px 10px 30px">{% csrf_token %}
         <table border="0">
+        <div class="input-group">
             {{ form.as_table }}
+        </div>
         </table>
-        <input type="submit" value="Register" />
+        <input style="width:100px; background-color:aqua; margin:20px 20px 20px 130px" type="submit" value="Register" />
     </form>
-    <a href="/">Login</a>
+    
+
+<script type="text/javascript">
+	$('input').addClass('form-control');
+
+
+</script>
+
 {% endblock %}

@@ -29,5 +29,5 @@ urlpatterns = [
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
     url(r'^channel/(?P<chatroom>[^/]*)/$', channel),
     url(r'^p_channel/(?P<chatroom>[^/]*)/$', p_channel),
-    url(r'^user_select_channel/([^/]*)/$', user_select_channel),
+    
 ]

@@ -21,23 +21,23 @@
         <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">logged in as {{ user.username }}, Logout?</a></li>
+        <li><a href="/login">logged in as {{ user.username }}, Logout?</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 <div class="div1">
-    <div class="container-fluid">
+    <div class="container-fluid" >
         {%if room.count > 0 %}
-        Available channels<br/>
+        <u style="font-size:20px">Available channels</u><br/>
         {% endif %}
         {% for e in room %}
          <li><a href="/channel/{{e.channel}}/">{{e.channel}}</a></li>
         {% endfor %}
         <br/><br/>
-        {%if p_room.count > 0 %}
-        Private channels<br/>
-        {%endif%}
+        
+        <u style="font-size:20px">Available Private channels</u><br/>
+        
         {% for e in p_room %}
          <li><a href="/p_channel/{{e}}/">{{e}}</a></li>
         {% endfor %}
@@ -45,16 +45,17 @@
         <hr>
         <br/>
         <span> Create New Channel</span> <br/><br/>
-        <input type="text" name="page_name" id="room" placeholder = "typr your channel name"/><button onclick="sub()">create</button>
+        <input type="text" name="page_name" id="room" placeholder = " type your channel name"/><button onclick="sub()">create</button>
         <br/><br/><br/> <span> Create New Private Channel </span> <br/><br/>
-        <input type="text" name="page_name" id="proom" placeholder = "typr your channel name"/><button onclick="sub1()">create</button>
+        <input type="text" name="page_name" id="proom" placeholder = " type your channel name"/><button onclick="sub1()">create</button>
         <br/><br/>
     </div>
 </div>
-<div class="div2">
-        <h3> Users in this channel</h3>
-        <br/>
+<div class="div2" style="background-color:lightgray">
         <div class="container-fluid">
+          <h3> Registered Users</h3>
+        <br/>
+        
             {% for i in access_user %}
               {{i}} <br/>
             {% endfor %}

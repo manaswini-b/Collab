@@ -141,20 +141,8 @@ def add_details(request,page_name):
     else:
         msg["status"] = "202 Invalid"
     return JsonResponse(msg)
-class CronForm(forms.Form):
-    user_names = forms.ModelChoiceField(queryset=Comments.objects.all().order_by().values('user').distinct())
-def user_select_channel(request):
-	form = CronForm()
-	if request.method == "POST":
-		form = CronForm(request.POST)
-		if form.is_valid:
-			#redirect to the url where you'll process the input
-			return HttpResponseRedirect("/p_channel") # insert reverse or url
-	errors = form.errors or None
-	return render(request, 'user_select.html',{
-          'form': form,
-          'errors': errors,
-   })
+
+
    	 
 
    	
