@@ -1,6 +1,6 @@
 var http = require('http'); 
 var connect = require('connect');
-var app = connect().use(function(req, res){res.setHeader("Access-Control-Allow-Origin", "http://58019769.ngrok.io");});
+var app = connect().use(function(req, res){res.setHeader("Access-Control-Allow-Origin", "45.55.237.55:8000");});
 var server = http.createServer(app).listen(4000);
 var io = require('socket.io').listen(server);
 var cookie_reader = require('cookie');  
