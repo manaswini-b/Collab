@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Registration Successful{% endblock %}
+{% block head %}
+ Registration Completed Successfully
+{% endblock %}
+{% block content %}
+<div class="box" >
+<nav class="navbar navbar-default">
+  <div class="container-fluid" style="color : lightgreen">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header" >
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Collab</a>
+    </div>
+   </div>
+</nav>
+</div> 
+<div class="div2" style="background-color:lightgray">
+        <div class="container-fluid">
+          <h3> Choose users for the Channel {{e}}</h3>
+        <br/>
+        
+            {% for i in users %}
+              <div class="checkbox">
+                <label><input class="messageCheckbox" type="checkbox" value="{{i}}">{{i}}</label>
+              </div> <br/>
+            {% endfor %}
+        </div>
+</div>
+<br/><br/>
+<button  onclick="subb()" > Submit </button>
+<script type="text/javascript">
+function subb() {
+  //var selected = request.POST.getlist({{i}});
+  var checkedValues = $('.messageCheckbox:checked').map(function() {
+      return this.value;
+  }).get();
+  //var checkedValue = document.querySelector('.messageCheckbox:checked').value;
+  console.log(checkedValues);
+  //window.location = "/channel/{{e}}";
+}
+</script>
+{% endblock %}
+
+

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Welcome to Django{% endblock %}
+{% block title %}Welcome to Collab{% endblock %}
 {% block content %}
-<div class="box">
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
+<div class="box" >
+<nav class="navbar navbar-inverse navbar-static-top" id="nav">
+  <div class="container-fluid" >
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -12,7 +12,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">Slack Clone</a>
+      <a class="navbar-brand" href="/">Collab</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
@@ -21,33 +21,36 @@
         <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/login">logged in as {{ user.username }}, Logout?</a></li>
+        <li><a href="/logout"><bold style="color:white">logged in as {{ user.username }}, Logout?</bold></a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 <div class="div1">
     <div class="container-fluid" >
-        {%if room.count > 0 %}
-        <u style="font-size:20px">Available channels</u><br/>
-        {% endif %}
+        
+        <h2 style="font-family:serif">Available Public channels</h2><br/>        
         {% for e in room %}
-         <li><a href="/channel/{{e.channel}}/">{{e.channel}}</a></li>
+          <li><a href="/channel/{{e}}/">{{e}}</a></li>
         {% endfor %}
-        <br/><br/>
-        
-        <u style="font-size:20px">Available Private channels</u><br/>
-        
+      
+
+      <br/><br/>
+
+      
+        <h2 style="font-family:serif">Available Private channels</h2><br/>        
         {% for e in p_room %}
-         <li><a href="/p_channel/{{e}}/">{{e}}</a></li>
+          <li><a href="/p_channel/{{e}}/">{{e}}</a></li>
         {% endfor %}
+        
+
         <br/>
         <hr>
         <br/>
         <span> Create New Channel</span> <br/><br/>
-        <input type="text" name="page_name" id="room" placeholder = " type your channel name"/><button onclick="sub()">create</button>
+        <input type="text" name="page_name" id="room" placeholder = " type your channel name"/><button style="color:black" onclick="sub()">create</button>
         <br/><br/><br/> <span> Create New Private Channel </span> <br/><br/>
-        <input type="text" name="page_name" id="proom" placeholder = " type your channel name"/><button onclick="sub1()">create</button>
+        <input type="text" name="page_name" id="proom" placeholder = " type your channel name"/><button style="color:black" onclick="sub1()">create</button>
         <br/><br/>
     </div>
 </div>
@@ -81,6 +84,7 @@ div.box {
 div.div1 {
   float:left;
   width: 80%;height: 100%;
+  color:purple;
 }
 
 div.div2 {

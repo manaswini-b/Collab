@@ -1,12 +1,13 @@
 from core.models import Comments, User, Channel
 from core.forms import *
 from django.shortcuts import render, render_to_response
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.sessions.models import Session
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.template import RequestContext
+import json
  
 import redis
  
@@ -15,12 +16,21 @@ def home(request):
     #comments = Comments.objects.select_related().all()[0:100]
     #return render(request, 'index.html', locals())
     lst = []
+    lst1=[]
+    #lst1 = Comments.objects.order_by().values('channel').distinct()
     cnl = Channel.objects.all()
     for i in cnl:
-        if (request.user in i.user_list[u'user'] or request.user == i.admin) and i.channel_type == 'private':
-            lst.append(i.channel_name)
-    lst1 = Comments.objects.order_by().values('channel').distinct()
+        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin):
+            if i.channel_type == 'private':
+                lst.append(i.channel_name)
+        #print(i.user_list[u'user'])
+    for i in cnl:
+        if i.channel_type == 'general':
+            lst1.append(i.channel_name)
     users = User.objects.all()
+
+    print(lst)
+    print(lst1)
     return render_to_response('home.html',{ 'user': request.user ,'room' : lst1,'p_room':lst,'access_user':users})
     
 @csrf_exempt
@@ -93,6 +103,7 @@ def channel(request, chatroom):
     access_user = cnl.user_list[u"user"]
     chat = chatroom
     usr = request.user
+    chnl_type = "general"
     comments = Comments.objects.filter(channel__contains = chatroom)[0:100]
     return render(request, 'index.html', locals())
 
@@ -105,8 +116,16 @@ def p_channel(request, chatroom):
             chat = chatroom
             usr = request.user
             users = User.objects.all()
-            access_user = cnl.user_list
+            usrr = [];
+            for i in users:
+                usrr.append(str(i))
+            users = usrr 
+            access_user = cnl.user_list[u"user"]
             print (access_user)
+            print (users)
+            access_user.append(str(cnl.admin))
+            users1 = list(set(users) - set(access_user))
+            chnl_type = "private"
             return render(request, 'index.html', locals())
         else:
             return HttpResponseRedirect("/")
@@ -117,7 +136,21 @@ def p_channel(request, chatroom):
         chat = chatroom
         usr = request.user
         users = User.objects.all()
+        usrr = [];
+        for i in users:
+            usrr.append(str(i))
+        users = usrr 
+        # user_to_add=[]
         access_user = [usr]
+        print(access_user)
+        cnl = Channel.objects.get(channel_name=chatroom)
+        # for u in users:
+        #     if u not in cnl.user_list[u"user"]:
+        #         user_to_add.append(u)
+        cnl.save()
+        chnl_type = "private"
+        access_user.append(str(cnl.admin))
+        users1 = list(set(users) - set(access_user))
         return render(request, 'index.html', locals())
 
 @login_required
@@ -141,6 +174,44 @@ def add_details(request,page_name):
     else:
         msg["status"] = "202 Invalid"
     return JsonResponse(msg)
+def add_users(request, chatroom):
+    lst = []
+    e = chatroom
+    # cnl = Channel.objects.all()
+    # for i in cnl:
+    #     if (request.user in i.user_list[u'user'] or request.user == i.admin):
+    #         lst.append(i.channel_name)
+    # lst1 = Comments.objects.order_by().values('channel').distinct()
+    users = User.objects.all()
+    print(users)
+    
+    return render(request, 'add_users.html', locals())
+
+@csrf_exempt
+def add_user_to_private(request,chatroom):
+    msg = {}
+    try:
+        if request.method == "POST":
+            print(request.POST)
+            cnl = Channel.objects.get(channel_name=chatroom)
+            content = request.POST.getlist('lst[]')
+            print(content)
+            if isinstance(content, list):
+                for i in content:
+                    if not (i in cnl.user_list[u"user"]):
+                        cnl.user_list[u"user"].append(i)
+                cnl.save()
+                msg["status"]="200 OK"
+            else:
+                msg["status"]="406 ERROR"
+        else:
+            msg["status"]="405 ERROR"
+    except Channel.DoesNotExist:
+        msg["status"]="404 ERROR"
+    return JsonResponse(msg)
+
+
+
 
 
    	 
