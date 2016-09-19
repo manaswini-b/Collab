@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'slack_clone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'myproject',                      
-        'USER': 'myprojectuser',
-        'PASSWORD': 'password',
+        'NAME': 'slack_clone_1',                      
+        'USER': 'db',
+        'PASSWORD': 'db@123',
         'HOST': 'localhost',
         'PORT': '',
     }

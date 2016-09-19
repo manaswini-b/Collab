@@ -20,7 +20,7 @@ def home(request):
     #lst1 = Comments.objects.order_by().values('channel').distinct()
     cnl = Channel.objects.all()
     for i in cnl:
-        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin):
+        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
             if i.channel_type == 'private':
                 lst.append(i.channel_name)
         #print(i.user_list[u'user'])
