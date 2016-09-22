@@ -109,12 +109,11 @@ def channel(request, chatroom):
         Channel.objects.create(admin=request.user,user_list=user_list, channel_name=chatroom,channel_type='general')
     cnl = Channel.objects.get(channel_name=chatroom)
     access_user = cnl.user_list[u"user"]
+    access_user.append(str(cnl.admin))
     chat = chatroom
     usr = request.user
     chnl_type = "general"
     comments = Comments.objects.filter(channel__contains = chatroom)[0:100]
-    for i in comments:
-        print(i.timestamp)
     return render(request, 'index.html', locals())
 
 @login_required
@@ -131,13 +130,9 @@ def p_channel(request, chatroom):
                 usrr.append(str(i))
             users = usrr 
             access_user = cnl.user_list[u"user"]
-            print (access_user)
-            print (users)
             access_user.append(str(cnl.admin))
             users1 = list(set(users) - set(access_user))
             chnl_type = "private"
-            for i in comments:
-                print(i.timestamp)
             return render(request, 'index.html', locals())
         else:
             return HttpResponseRedirect("/")
@@ -153,12 +148,10 @@ def p_channel(request, chatroom):
             usrr.append(str(i))
         users = usrr 
         # user_to_add=[]
-        access_user = [usr]
-        print(access_user)
+        access_user = [str(usr)]
         cnl = Channel.objects.get(channel_name=chatroom)
         cnl.save()
         chnl_type = "private"
-        access_user.append(str(cnl.admin))
         users1 = list(set(users) - set(access_user))
         return render(request, 'index.html', locals())
 
