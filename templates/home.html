@@ -2,7 +2,7 @@
 {% block title %}Welcome to Collab{% endblock %}
 {% block content %}
 <div class="box" >
-<nav class="navbar navbar-inverse navbar-static-top" id="nav">
+<nav class="navbar navbar-inverse navbar-fixed-top" id="nav" role="navigation" style="background-color:white">
   <div class="container-fluid" >
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -12,7 +12,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">Collab</a>
+      <a class="navbar-brand" href="/" style="color:lightseagreen">Collab</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
@@ -21,46 +21,51 @@
         <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/logout"><bold style="color:white">logged in as {{ user.username }}, Logout?</bold></a></li>
+        <li><a href="/logout"><bold style="color:black">logged in as {{ user.username }}, Logout?</bold></a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 <div class="div1">
     <div class="container-fluid" >
+        <div style="display:inline-block">
+          <h2 style="font-family:serif; padding-top:10px">Available Public channels</h2><br/>        
+          {% for e in room %}
+            <li style="color:green"><a href="/channel/{{e}}/">{{e}}</a></li>
+          {% endfor %}
+        </div>
+
+        <div style="display:inline-block; padding-top:25px; padding-right:40px; float:right; font-family:serif">
+          <span> Create New Public Channel</span> <br/><br/>
+          <input style="width:80%; height:30px;" type="text" name="page_name" id="room" placeholder = " type your channel name"/><button style="color:black; height:30px; width:20%;" onclick="sub()">create</button>
+        </div>
+      
+        <br/><br/><br/>
+        <hr>
         
-        <h2 style="font-family:serif">Available Public channels</h2><br/>        
-        {% for e in room %}
-          <li><a href="/channel/{{e}}/">{{e}}</a></li>
-        {% endfor %}
-      
 
-      <br/><br/>
-
-      
+      <div style="display:inline-block">
         <h2 style="font-family:serif">Available Private channels</h2><br/>        
         {% for e in p_room %}
           <li><a href="/p_channel/{{e}}/">{{e}}</a></li>
         {% endfor %}
+      </div>
         
 
-        <br/>
-        <hr>
-        <br/>
-        <span> Create New Channel</span> <br/><br/>
-        <input type="text" name="page_name" id="room" placeholder = " type your channel name"/><button style="color:black" onclick="sub()">create</button>
-        <br/><br/><br/> <span> Create New Private Channel </span> <br/><br/>
-        <input type="text" name="page_name" id="proom" placeholder = " type your channel name"/><button style="color:black" onclick="sub1()">create</button>
-        <br/><br/>
+
+      <div style="display:inline-block; padding-top:25px; padding-right:30px; float:right; font-family:serif">
+        <span> Create New Private Channel </span> <br/><br/>
+        <input style="width:80%; height:30px;" type="text" name="page_name" id="proom" placeholder = " type your channel name"/><button style="color:black; height:30px; width:20%" onclick="sub1()">create</button>
+      </div>  
     </div>
 </div>
-<div class="div2" style="background-color:lightgray">
+<div class="div2" style="background-color:lightseagreen">
         <div class="container-fluid">
-          <h3> Registered Users</h3>
+          <h3 style="text-align: center; padding-right:10px"> Registered Users</h3>
         <br/>
         
             {% for i in access_user %}
-              {{i}} <br/>
+              {{i}} <br/><br/>
             {% endfor %}
         </div>
 </div>
@@ -83,18 +88,24 @@ div.box {
 
 div.div1 {
   float:left;
-  width: 80%;height: 100%;
-  color:purple;
+  margin-top:40px;
+  width: 80%;
+  height: 100%;
+  
 }
 
 div.div2 {
-  background:#cccccc;
+  margin-top:50px;
   float:right;
-  width: 20%;height: 500px;
+  width: 20%;height: 100%;
+  right:0;
+  position: fixed;
+  padding-left: 20px;
+
 }
 
 span{
-    font-size: 20px;
+    font-size: 30px;
     color:green;
 }
 

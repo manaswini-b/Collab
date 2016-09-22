@@ -31,7 +31,7 @@ io.sockets.on('connection', function (socket) {
         var message1 = message.split("~");
         var chnl = message1[0];
         message1.shift();
-        console.log(message1);
+        console.log(message);
         values = querystring.stringify({
             comment: message1.toString(),
             channel: chnl,
@@ -70,5 +70,6 @@ sub.on('message', function(channel, message){
     var message1 = message.split("~");
     var chnl = message1[0];
      message1.shift();
+     console.log(message1);
     io.sockets.in(chnl).emit('message', message1.toString());
 });

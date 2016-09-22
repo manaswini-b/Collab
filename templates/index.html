@@ -22,13 +22,14 @@
         var data = message.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
         
         //Append message to the bottom of the list
-        data = data.split(':');
+        data = data.split('*');
+        console.log(data);
         var app;
         if(data[0] == "{{user.username|safe }}"){
-          app = '<div class="panel panel-success" style="width:30%"><div class="panel-heading">'+data[0]+'</div><div class="panel-body">'+data[1]+'</div></div>';
+          app = '<div class="panel panel-success" style="width:30%"><div class="panel-heading">'+data[0]+'<span style="float:right">'+data[2]+'</span></div><div class="panel-body">'+data[1]+'</div></div>';
         }
         else{
-          app = '<div class="panel panel-warning" style="width:30%;display:block;margin-left:  auto;margin-right: 0;"><div class="panel-heading">'+data[0]+'</div><div class="panel-body">'+data[1]+'</div></div>'
+          app = '<div class="panel panel-warning" style="width:30%;display:block;margin-left:  auto;margin-right: 0;"><div class="panel-heading">'+data[0]+'<span style="float:right">'+data[2]+'</span></div><div class="panel-body">'+data[1]+'</div></div>'
         }
         $('#comments').append(app);
         window.scrollBy(0, 10000000000);
@@ -78,7 +79,7 @@ function getSelectValues(select) {
 </head>
 <body>
 <div class="box" >
-<nav class="navbar navbar-inverse navbar-static-top" id="nav">
+<nav class="navbar navbar-inverse navbar-fixed-top" id="nav" role="navigation" style="background-color:white">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header" >
@@ -88,37 +89,37 @@ function getSelectValues(select) {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">Collab</a>
+      <a class="navbar-brand" href="/" style="color:lightseagreen">Collab</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
+      <ul class="nav navbar-nav" >
+        <li class="active" ><a href="/">Home <span class="sr-only">(current)</span></a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/logout/"><bold style="color:white">logged in as {{ user.username }}, Logout?</bold></a></li>
+        <li><a href="/logout/"><bold style="color:black">logged in as {{ user.username }}, Logout?</bold></a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
   <div class="div1">
-  <div class="container" style="max-width:75% ; border-left:1px dotted darkgrey; border-right:1px dotted darkgrey; margin-left:220px">
-    <h2> Channel name : {{ chat }} </h2>
-    <div id="comments" style="overflow-y:auto">
+  <div class="container" style="max-width:75% ; border-left:1px dotted darkgrey; border-right:1px dotted darkgrey; margin-left:250px">
+    <h2 align="center" style="color:white; top:30px; left:0;position:fixed;overflow:hidden;background-color:mediumaquamarine; width:100%; height:50px;padding-top:7px"> Channel : {{ chat }} </h2>
+    <div id="comments" style="overflow-y:auto; margin-top:70px">
         {% for comment in comments %}
           {% if comment.user|safe == user.username|safe %}
-          <div class="panel panel-success" style="max-width:50%;"><div class="panel-heading">{{comment.user}}</div><div class="panel-body" style="word-wrap: break-word">{{comment.text}}</div></div>
+          <div class="panel panel-success" style="max-width:40%;"><div class="panel-heading">{{comment.user}}<span style="float:right">{{comment.timestamp}}</span></div><div class="panel-body" style="word-wrap: break-word">{{comment.text}}</div></div>
           {% else %}
-          <div class="panel panel-warning" style="max-width:50%;display:block;margin-left:auto;margin-right: 0;"><div class="panel-heading" style="word-wrap: break-word">{{comment.user}}</div><div class="panel-body" style="display:inline-block;">{{comment.text}}</div></div>
+          <div class="panel panel-warning" style="max-width:40%;display:block;margin-left:auto;margin-right: 0;"><div class="panel-heading" style="word-wrap: break-word">{{comment.user}}<span style="float:right">{{comment.timestamp}}</span></div><div class="panel-body" style="display:inline-block;">{{comment.text}}</div></div>
           {% endif %}
         {% endfor %}
     </div>
     <br/>
-     <div class="input-group" style="">
-      <input type="text" class="form-control comment" placeholder="Type..">
+     <div class="input-group" style="bottom:0; position:fixed; width:57%; padding-bottom:6px;">
+      <input style="border:1px solid black;" type="text" class="form-control comment" placeholder="Type..">
       <span class="input-group-btn">
-        <button class="btn btn-default" onclick="typ()" type="button">Send</button>
+        <button class="btn btn-default" onclick="typ()" type="button" style="border:1px solid black; color:black">Send</button>
       </span>
     </div>
     <br/>
@@ -128,27 +129,28 @@ function getSelectValues(select) {
 
   <div class="div2" >
     <div class="container-fluid" >
-      <h3 >Users in the channel</h3>
+      <h2 style="color:lightseagreen; text-align:center; padding-right:10px;">Users in the channel</h2>
       <br/>
       {% for i in access_user %}
-        {{i}} <br/>
+        <bold style="color:white">{{i}} </bold><br/><br/>
       {% endfor %}
       <br/><br/>
       
     </div>
   </div>
 
+<div class="div4">
 {% if chnl_type == "private"  %}
   {% if cnl.admin == usr %}
-    <div class="div3" style="border:1px solid black;">
-      <h2 style="font-size:20px"> Select your Users </h2>
+    <div class="div3">
+      <h2 style="font-size:25px; padding-top:15px; color:cyan"> Select your Users</h2>
       <br/>
       {% if users1 %}
       
-      <select multiple style="width:70%; height:300px; border:1px solid black; padding-left:10px" id="alpha">
+      <select multiple style="width:90%; height:450px; padding-left:20px; padding-top:20px; background:darkslategrey" id="alpha">
       {% for usrr in users1 %}
         {% if usrr != cnl.admin %}
-        <option value="{{usrr}}">{{usrr}}</option>
+        <option class="list-group" style="color:white" value="{{usrr}}">{{usrr}}</option>
 
         {% endif %}
       {% endfor %}
@@ -156,10 +158,11 @@ function getSelectValues(select) {
       </select>
       {% endif %}
       <br/><br/>
-      <button  class="btn btn-default" style="background-color:lightcyan" onclick="sub_function()"> Submit </button>
+      <button  class="btn btn-default" style="background-color:white" onclick="sub_function()">Submit</button>
     </div>
   {% endif %}
 {% endif %}
+</div>
 </div>
 </body>
 <style type="text/css">
@@ -169,34 +172,51 @@ div.box {
 }
 
 div.div1 {
+  margin-top:40px;
   float:left;
-  width: 80%;height: 100%;
-  padding-left: 1px solid black;
+  width: 80%;height: 100%; 
+  /*background-color:darkslategrey;*/
+
 }
 
 div.div2 {
-  background: darkseagreen ;
+  background:darkslategrey;
+  margin-top:40px;
   right:0;
-  width: 20%;height: 500px;
+  width: 20%;height: 100%;
   position:fixed;
-  padding-left:20px;
+  padding-left:15px;
+  padding-top: 10px;
+  border-left: 1px dotted white;
 }
 
 div.div3{
-  background:lightblue;
+  border-right: 1px dotted white;
+  margin-top:40px;
+  background:darkslategrey;
   left:0;
-  width: 15%;
-  height: 50px;
+  width: 17%;
+  height: 100%;
   text-align:center;
   position:fixed;
-
-  
-
 }
 
+div.div4{
+  border-right: 1px dotted white;
+  background:darkslategrey;
+  left:0;
+  width: 17%;
+  height: 100%;
+  text-align:center;
+  position:fixed;
+}
 </style>
 
 <script type="text/javascript">
+{% for comment in comments %}
+  console.log("{{comment.timestamp}}");
+{% endfor %}
+
   function sub_function(){
     var el = document.getElementsByTagName('select')[0]; 
       console.log(getSelectValues(el));

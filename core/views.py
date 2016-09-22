@@ -8,10 +8,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.template import RequestContext
 import json
+from django.utils import timezone
+import datetime
+
  
 import redis
  
-@login_required
+@login_required(login_url="login/")
 def home(request):
     #comments = Comments.objects.select_related().all()[0:100]
     #return render(request, 'index.html', locals())
@@ -40,13 +43,13 @@ def node_api(request):
         session = Session.objects.get(session_key=request.POST.get('sessionid'))
         user_id = session.get_decoded().get('_auth_user_id')
         user = User.objects.get(id=user_id)
- 
+        tms = datetime.datetime.now()
         #Create comment
-        Comments.objects.create(user=user, text=request.POST.get('comment'), channel= request.POST.get('channel'))
+        Comments.objects.create(user=user, text=request.POST.get('comment'), channel= request.POST.get('channel'),timestamp = tms)
         
         #Once comment has been created post it to the chat channel
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        r.publish('chat', request.POST.get('channel') +"~"+ user.username  + ': ' + request.POST.get('comment'))
+        r.publish('chat', str(request.POST.get('channel') +"~"+ user.username  + '*' + request.POST.get('comment')+'*' +str(tms.strftime("%b-%d-%Y %H:%M:%S")) ))
         
         return HttpResponse("Everything worked :)")
     except Exception as e:
@@ -81,6 +84,11 @@ def register_success(request):
 def logout_page(request):
     logout(request)
     return HttpResponseRedirect('/')
+
+# @login_required(login_url="login/")
+# def login(request):
+#     # login(request)
+#     return render(request, 'registration/login.html',locals())
  
 @login_required
 def homes(request):
@@ -105,6 +113,8 @@ def channel(request, chatroom):
     usr = request.user
     chnl_type = "general"
     comments = Comments.objects.filter(channel__contains = chatroom)[0:100]
+    for i in comments:
+        print(i.timestamp)
     return render(request, 'index.html', locals())
 
 @login_required
@@ -126,6 +136,8 @@ def p_channel(request, chatroom):
             access_user.append(str(cnl.admin))
             users1 = list(set(users) - set(access_user))
             chnl_type = "private"
+            for i in comments:
+                print(i.timestamp)
             return render(request, 'index.html', locals())
         else:
             return HttpResponseRedirect("/")
@@ -144,9 +156,6 @@ def p_channel(request, chatroom):
         access_user = [usr]
         print(access_user)
         cnl = Channel.objects.get(channel_name=chatroom)
-        # for u in users:
-        #     if u not in cnl.user_list[u"user"]:
-        #         user_to_add.append(u)
         cnl.save()
         chnl_type = "private"
         access_user.append(str(cnl.admin))
