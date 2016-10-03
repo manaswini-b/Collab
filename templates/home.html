@@ -1,114 +1,394 @@
 {% extends "base.html" %}
 {% block title %}Welcome to Collab{% endblock %}
 {% block content %}
-<div class="box" >
-<nav class="navbar navbar-inverse navbar-fixed-top" id="nav" role="navigation" style="background-color:white">
-  <div class="container-fluid" >
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
+
+  <title>Collab</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+  <script src="http://45.55.237.55:4000/socket.io/socket.io.js"></script>
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script>
+  var socket;
+    $(document).ready(function(){
+      socket = io.connect('45.55.237.55', {port:4000});
+      socket.emit('create', '{{ chat }}');
+      socket.on('connect', function(){
+        console.log("connect");
+      });
+      
+      var entry_el = $('.comment');
+               
+      socket.on('message', function(message) {
+        //Escape HTML characters
+        var data = message.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        
+        //Append message to the bottom of the list
+        data = data.split('*');
+        console.log(data);
+        var app;
+        if(data[0] == "{{user.username|safe }}"){
+          app = '<div class="panel panel-success" style="width:30%"><div class="panel-heading">'+data[0]+'<span style="float:right">'+data[2]+'</span></div><div class="panel-body">'+data[1]+'</div></div>';
+        }
+        else{
+          app = '<div class="panel panel-warning" style="width:30%;display:block;margin-left:  auto;margin-right: 0;"><div class="panel-heading">'+data[0]+'<span style="float:right">'+data[2]+'</span></div><div class="panel-body">'+data[1]+'</div></div>'
+        }
+        $('#comments').append(app);
+           $('#comments').animate({scrollTop: $('#comments').get(0).scrollHeight}, 0);
+        entry_el.focus();
+      });
+                     
+      entry_el.keypress(function(event){
+        //When enter is pressed send input value to node server
+        if(event.keyCode != 13) return;
+          else{            
+            var msg = $(".comment").val();
+            console.log(msg);
+            if(msg){
+               socket.emit('send_message', "{{ chat }}~"+msg , function(data){
+                    console.log("{{ chat }}~"+msg);
+               });
+            $(".comment").val('');
+           }
+          }
+      });
+    });
+          function typ(){
+        var msg = $('.comment').val();
+        if(msg){
+           socket.emit('send_message', "{{ chat }}~"+msg , function(data){
+                console.log("{{ chat }}~"+msg);
+           });
+        
+        //Clear input value   
+         $('.comment').val('');
+        }
+      }
+  </script>
+     
+
+<!-- side bar -->
+<nav class="navbar navbar-inverse sidebar" role="navigation" >
+    <div class="container-fluid">
+    	<div class="navbar-header">
+      		<a class="navbar-brand" href="/" style="font-size:20px">Collab</a>
+    	</div>
+
+    	<div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
+      		<ul class="nav navbar-nav">
+        		<li class="active" style="font-size:20px"><a href="/">Home<span style="font-size:16px;float:right;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+
+          		<h4 style="color:white;margin-left:15px"> Public Channels({{ room|length }}) <a href="/add_channel/"><button style="color:black; border-radius:15px;" type="button">+</button></a></h4>
+              <ul style="overflow-y: scroll;height:200px;overflow-x: hidden;"> 
+            		{% for e in room %}
+              			<li style="margin-left:15px"><a href="/channel/{{e}}/"># {{e}}</a></li>
+            		{% endfor %}
+              </ul>
+          		<h4 style="color:white;margin-left:15px">Private Channels({{ p_room|length }}) <a href="/add_pchannel/"><button style="color:black; border-radius:15px;" type="button">+</button></a></h4>
+              <ul style="overflow-y: scroll;height:200px;overflow-x: hidden;">
+            		{% for e in p_room %}
+              			<li style="margin-left:15px"><a href="/p_channel/{{e}}/"># {{e}}</span></a></li>
+            		{% endfor %}
+            </ul>
+
+      		</ul>
+
+    	</div>
+    </div>
+</nav>
+
+<!-- push menu -->
+<div class="navmenu navmenu-default navmenu-fixed-right offcanvas" data-canvas="container">
+     <a class="navmenu-brand" href="/">{{user.username}}</a>
+      <ul class="nav navmenu-nav">
+        <li><a href="/logout/">Logout</a></li>
+      </ul>
+
+      <ul class="nav navmenu-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><u>Users in the Channel </u><b class="caret"></b></a>
+          <ul class="dropdown-menu navmenu-nav" style="display:block;">       
+            {% for i in access_user %}
+              <li><a href="/">{{i}}</a></li>
+            {% endfor %}
+
+            {% if chnl_type == "private" %}
+            <button class="btn btn-primary" onclick="$('.modal').modal('show');" >Add Users</button>
+            	
+			{% endif %}
+          </ul>
+        </li>
+      </ul>
+</div>
+<div class="modal fade bs-example-modal-lg"  tabindex="-1" aria-labelledby="myLargeModalLabel">
+  					<div class="modal-dialog modal-l" role="document">
+    					<div class="modal-content">
+      						<div class="modal-header">
+      							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"> </span></button>
+      							<h4 class="modal-title" id="myLargeModalLabel">Select Users</h4>
+      						</div>
+      						<div class="modal-body">
+      							{% if users1 %}
+      								<select multiple style="width:90%; height:450px; padding-left:20px; padding-top:20px;  id="alpha">
+      								 <form class="form-horizontal" role="form">
+      								{% for usrr in users1 %}
+        								{% if usrr != cnl.admin %}
+        									<<option class="list-group"  value="{{usrr}}">{{usrr}}</option>
+
+        								{% endif %}
+      								{% endfor %}
+      								</form>
+      								</select>
+      								
+      							{% endif %}
+      							<br/><br/>
+      							<button type="button" class="btn btn-secondary" style="float:right" data-dismiss="modal">Cancel</button>
+      							<button  class="btn btn-primary" onclick="sub_function()">Submit</button>
+      						</div>
+    					</div>
+  					</div>
+				</div>
+<div class="navbar navbar-default navbar-fixed-top">
+      <button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".navmenu" data-canvas="body">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/" style="color:lightseagreen">Collab</a>
+</div>
+
+<!-- channel messages -->
+<div class="container" style="margin:0px 80px 0px 250px" >
+<!-- 	{% if chat|length == 0 %}
+		<h1 style="text-align:center"> Welcome to Collab {{ user.username }}
+	{% else %} -->
+    <div class="page-header-fixed-top" style="position:fixed;text-align:center;background:white;width:100%; border-bottom:1px dotted grey">
+    	{% if accee_user|length == 1 %}
+        <h2 style="float:left"> Channel : {{ chat }} <span style="font-size:15px">({{access_user|length}} member)</span></h2>
+        {% else %}
+    	<h2 style="float:left"> Channel : {{ chat }} <span style="font-size:15px">({{access_user|length}} members) </span></h2>
+    	{% endif %}
     </div>
+    <div id="comments" style="overflow-y:auto; margin-top:280px; margin:40px 100px 30px 70px;padding-top: 20px;position: absolute; top:40px; width: 75%; bottom: 0px;">
+    	{% if chat == "general" %}
+    		<h2 style="padding-top: 10px; text-align: center"> Welcome to Collab </h2>
+    	{% endif %}
+        {% for comment in comments %}
+          {% if comment.user|safe == user.username|safe %}
+          		<div class="panel panel-success" style="max-width:40%;display:block;">  
+              <div class="panel-heading" style="word-wrap: break-word">{{comment.user}}<span style="float:right">{{comment.timestamp}}</span>
+              </div>
+              <div class="panel-body" style="display:inline-block;">{{comment.text}}
+              </div>
+            </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="/logout"><bold style="color:black">logged in as {{ user.username }}, Logout?</bold></a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-<div class="div1">
-    <div class="container-fluid" >
-        <div style="display:inline-block">
-          <h2 style="font-family:serif; padding-top:10px">Available Public channels</h2><br/>        
-          {% for e in room %}
-            <li style="color:green"><a href="/channel/{{e}}/">{{e}}</a></li>
-          {% endfor %}
-        </div>
-
-        <div style="display:inline-block; padding-top:25px; padding-right:40px; float:right; font-family:serif">
-          <span> Create New Public Channel</span> <br/><br/>
-          <input style="width:80%; height:30px;" type="text" name="page_name" id="room" placeholder = " type your channel name"/><button style="color:black; height:30px; width:20%;" onclick="sub()">create</button>
-        </div>
-      
-        <br/><br/><br/>
-        <hr>
-        
-
-      <div style="display:inline-block">
-        <h2 style="font-family:serif">Available Private channels</h2><br/>        
-        {% for e in p_room %}
-          <li><a href="/p_channel/{{e}}/">{{e}}</a></li>
+          {% else %}
+          	<div class="panel panel-warning" style="max-width:40%;display:block;margin-left:auto;margin-right: 60px;">	
+          		<div class="panel-heading" style="word-wrap: break-word">{{comment.user}}<span style="float:right">{{comment.timestamp}}</span>
+          		</div>
+          		<div class="panel-body" style="display:inline-block;">{{comment.text}}
+          		</div>
+          	</div>
+          {% endif %}
         {% endfor %}
-      </div>
-        
-
-
-      <div style="display:inline-block; padding-top:25px; padding-right:30px; float:right; font-family:serif">
-        <span> Create New Private Channel </span> <br/><br/>
-        <input style="width:80%; height:30px;" type="text" name="page_name" id="proom" placeholder = " type your channel name"/><button style="color:black; height:30px; width:20%" onclick="sub1()">create</button>
-      </div>  
+    
+    	<br/>
+    	<div class="input-group" style="bottom:0; position:fixed; width:70%; padding-bottom:6px;">
+      		<input style="border:1px solid black; " type="text" class="form-control comment" placeholder="Type..">
+      		<span class="input-group-btn">
+        		<button class="btn btn-default" onclick="typ()" type="button" style="border:1px solid black; color:black">Send</button>
+      		</span>
+    	</div>
     </div>
-</div>
-<div class="div2" style="background-color:lightseagreen">
-        <div class="container-fluid">
-          <h3 style="text-align: center; padding-right:10px"> Registered Users</h3>
-        <br/>
-        
-            {% for i in access_user %}
-              {{i}} <br/><br/>
-            {% endfor %}
-        </div>
-</div>
-</div>
-<script type="text/javascript">
-function sub() {
-	var room = document.getElementById('room').value;
-	window.location = '/channel/'+room;
-}
-function sub1() {
-    var room = document.getElementById('proom').value;
-    window.location = '/p_channel/'+room;
-}
-</script>
+    <!-- {% endif %} -->
+</div><!-- /.container -->
+
 <style type="text/css">
-div.box {
-  width:100%;overflow:auto;
-
-}
-
-div.div1 {
-  float:left;
-  margin-top:40px;
-  width: 80%;
+html, body {
   height: 100%;
-  
 }
 
-div.div2 {
-  margin-top:50px;
-  float:right;
-  width: 20%;height: 100%;
-  right:0;
-  position: fixed;
-  padding-left: 20px;
-
+body {
+  padding: 50px 0 0 0;
 }
 
-span{
-    font-size: 30px;
-    color:green;
+.navbar-toggle {
+  float: right;
+  margin-right: 15px;
 }
 
+@media (min-width: 0) {
+  .navbar-toggle {
+    display: block; /* force showing the toggle */
+  }
+}
+
+@media (min-width: 992px) {
+  body {
+    padding: 0;
+  }
+
+  .navbar {
+    left: auto;
+    background: none;
+    border: none;
+  }
+
+/*sidebar css*/
+
+
+@media (min-width: 768px) {
+    .main{
+      position: absolute;
+      width: calc(100% - 40px); /*keeps 100% minus nav size*/
+      margin-left: 40px;
+      float: right;
+    }
+    nav.sidebar:hover + .main{
+      margin-left: 200px;
+  } 
+.bootstrap-select.btn-group .dropdown-menu.inner {
+    position: static;
+}
+
+nav.sidebar.navbar.sidebar>.container .navbar-brand, .navbar>.container-fluid .navbar-brand {
+      margin-left: 0px;
+  }
+
+nav.sidebar .navbar-brand, nav.sidebar .navbar-header{
+      text-align: center;
+      width: 100%;
+      margin-left: 0px;
+  }   
+
+nav.sidebar a{
+      padding-right: 13px;
+  }
+
+nav.sidebar .navbar-collapse, nav.sidebar .container-fluid{
+      padding: 0 0px 0 0px;
+   }
+
+.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+      color: #777;
+  }
+
+nav.sidebar{
+      width: 250px;
+      height: 100%;
+      margin-left: -160px;
+      float: left;
+      z-index: 8000;
+      margin-bottom: 0px;
+      position:fixed;
+      background: black;
+  }
+
+nav.sidebar li {
+      width: 100%;
+  }
+
+nav.sidebar:hover{
+      margin-left: 0px;
+  }
+
+.forAnimate{
+      opacity: 0;
+    }
+  }
+
+@media (min-width: 1330px) {
+
+    .main{
+      width: calc(100% - 200px); /*keeps 100% minus nav size*/
+      margin-left: 200px;
+    }
+
+	nav.sidebar{
+      margin-left: 0px;
+      float: left;
+    }
+    
+    nav.sidebar .forAnimate{
+      opacity: 1;
+    }
+  }
+
+nav:hover .forAnimate{
+    opacity: 1;
+  } 
 
 </style>
+
+<script type="text/javascript">
+function htmlbodyHeightUpdate(){
+    var height3 = $( window ).height()
+    var height1 = $('.nav').height()+50
+    height2 = $('.main').height()
+    if(height2 > height3){
+      $('html').height(Math.max(height1,height3,height2)+10);
+      $('body').height(Math.max(height1,height3,height2)+10);
+    }
+    else
+    {
+      $('html').height(Math.max(height1,height3,height2));
+      $('body').height(Math.max(height1,height3,height2));
+    }
+    
+  }
+  $(document).ready(function () {
+    htmlbodyHeightUpdate()
+    $( window ).resize(function() {
+      htmlbodyHeightUpdate()
+    });
+    $( window ).scroll(function() {
+      height2 = $('.main').height()
+        htmlbodyHeightUpdate()
+    });
+  });
+
+function getSelectValues(select) {
+  var result = [];
+  var options = select && select.options;
+  var opt;
+
+  for (var i=0, iLen=options.length; i<iLen; i++) {
+    opt = options[i];
+
+    if (opt.selected) {
+      result.push(opt.value || opt.text);
+    }
+  }
+  return result;
+}
+
+function sub_function(){
+    var el = document.getElementsByTagName('select')[0]; 
+      console.log(getSelectValues(el));
+  $.ajax({
+    type:"POST",
+    url: '/add_users/{{ chat }}/',
+    data: {"lst": getSelectValues(el)},
+    success: function (data) {
+      if(data["status"] == "200 OK")
+        {window.history.go(0);}
+      else{
+        alert(data["status"]);
+      }
+    }
+  });
+  }
+{% if chnl_type == "private" %}
+{% if access_user|length == 1 %}
+$('.modal').modal('show');
+{% endif %}
+{% endif %}
+
+$(document).ready(function(){
+  $('#comments').animate({
+  scrollTop: $('#comments').get(0).scrollHeight}, 0);
+});
+
+
+</script>
+
 {% endblock %}

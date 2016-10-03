@@ -31,5 +31,8 @@ urlpatterns = [
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
     url(r'^channel/(?P<chatroom>[^/]*)/$', channel),
     url(r'^p_channel/(?P<chatroom>[^/]*)/$', p_channel),
+    url(r'^add_channel/$', add_channel),
+    url(r'^add_pchannel/$', add_pchannel),
     url(r'^add_users/(?P<chatroom>[^/]*)/$', add_user_to_private),
+    
 ]

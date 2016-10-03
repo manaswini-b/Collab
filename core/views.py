@@ -16,25 +16,7 @@ import redis
  
 @login_required(login_url="login/")
 def home(request):
-    #comments = Comments.objects.select_related().all()[0:100]
-    #return render(request, 'index.html', locals())
-    lst = []
-    lst1=[]
-    #lst1 = Comments.objects.order_by().values('channel').distinct()
-    cnl = Channel.objects.all()
-    for i in cnl:
-        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
-            if i.channel_type == 'private':
-                lst.append(i.channel_name)
-        #print(i.user_list[u'user'])
-    for i in cnl:
-        if i.channel_type == 'general':
-            lst1.append(i.channel_name)
-    users = User.objects.all()
-
-    print(lst)
-    print(lst1)
-    return render_to_response('home.html',{ 'user': request.user ,'room' : lst1,'p_room':lst,'access_user':users})
+    return HttpResponseRedirect('/channel/general')
     
 @csrf_exempt
 def node_api(request):
@@ -96,9 +78,48 @@ def homes(request):
     'home.html',
     { 'user': request.user }
     )
+@login_required
+def add_channel(request):
+    lst = []
+    lst1=[]
+    #lst1 = Comments.objects.order_by().values('channel').distinct()
+    cnl = Channel.objects.all()
+    for i in cnl:
+        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
+            if i.channel_type == 'private':
+                lst.append(i.channel_name)
+        #print(i.user_list[u'user'])
+    for i in cnl:
+        if i.channel_type == 'general':
+            lst1.append(i.channel_name)
+    
+    return render_to_response('add_channel.html',{ 'chnl_type' : "general",  'user' : request.user,'room' : lst1,'p_room' : lst })
+
+@login_required
+def add_pchannel(request):
+
+    lst = []
+    lst1=[]
+    cnl = Channel.objects.all()
+    usr = request.user
+    for i in cnl:
+        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
+            if i.channel_type == 'private':
+                lst.append(i.channel_name)
+        
+    for i in cnl:
+        if i.channel_type == 'general':
+            lst1.append(i.channel_name)
+    return render_to_response('add_channel.html',{ 'chnl_type' : "private" , 'user' : request.user,'room' : lst1,'p_room' : lst })
 
 @login_required
 def channel(request, chatroom):
+    # if len(chatroom)==0:
+    #     if len(Channel.objects.get(channel_name="general"))== 0:
+    #         Channel.objects.create(admin="Collab Bot",user_list=user_list, channel_name="general",channel_type='general')
+    #     else:
+    #         chatroom="general"
+
     try:
         cnl = Channel.objects.get(channel_name=chatroom)
         if not (str(request.user) in cnl.user_list[u"user"] or request.user == cnl.admin):
@@ -113,8 +134,22 @@ def channel(request, chatroom):
     chat = chatroom
     usr = request.user
     chnl_type = "general"
+    lst = []
+    lst1=[]
+    #lst1 = Comments.objects.order_by().values('channel').distinct()
+    cnl = Channel.objects.all()
+    for i in cnl:
+        if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
+            if i.channel_type == 'private':
+                lst.append(i.channel_name)
+        #print(i.user_list[u'user'])
+    for i in cnl:
+        if i.channel_type == 'general':
+            lst1.append(i.channel_name)
+    room = lst1
+    p_room = lst
     comments = Comments.objects.filter(channel__contains = chatroom)[0:100]
-    return render(request, 'index.html', locals())
+    return render(request, 'home.html', locals())
 
 @login_required
 def p_channel(request, chatroom):
@@ -133,7 +168,21 @@ def p_channel(request, chatroom):
             access_user.append(str(cnl.admin))
             users1 = list(set(users) - set(access_user))
             chnl_type = "private"
-            return render(request, 'index.html', locals())
+            lst = []
+            lst1=[]
+            #lst1 = Comments.objects.order_by().values('channel').distinct()
+            cnl = Channel.objects.all()
+            for i in cnl:
+                if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
+                    if i.channel_type == 'private':
+                        lst.append(i.channel_name)
+                #print(i.user_list[u'user'])
+            for i in cnl:
+                if i.channel_type == 'general':
+                    lst1.append(i.channel_name)
+            room = lst1
+            p_room = lst
+            return render(request, 'home.html', locals())
         else:
             return HttpResponseRedirect("/")
     except Channel.DoesNotExist:
@@ -153,7 +202,21 @@ def p_channel(request, chatroom):
         cnl.save()
         chnl_type = "private"
         users1 = list(set(users) - set(access_user))
-        return render(request, 'index.html', locals())
+        lst = []
+        lst1=[]
+        #lst1 = Comments.objects.order_by().values('channel').distinct()
+        cnl = Channel.objects.all()
+        for i in cnl:
+            if (str(request.user) in i.user_list[u'user'] or str(request.user) == i.admin) or request.user == i.admin:
+                if i.channel_type == 'private':
+                    lst.append(i.channel_name)
+            #print(i.user_list[u'user'])
+        for i in cnl:
+            if i.channel_type == 'general':
+                lst1.append(i.channel_name)
+        room = lst1
+        p_room = lst
+        return render(request, 'home.html', locals())
 
 @login_required
 def add_details(request,page_name):
@@ -176,18 +239,7 @@ def add_details(request,page_name):
     else:
         msg["status"] = "202 Invalid"
     return JsonResponse(msg)
-def add_users(request, chatroom):
-    lst = []
-    e = chatroom
-    # cnl = Channel.objects.all()
-    # for i in cnl:
-    #     if (request.user in i.user_list[u'user'] or request.user == i.admin):
-    #         lst.append(i.channel_name)
-    # lst1 = Comments.objects.order_by().values('channel').distinct()
-    users = User.objects.all()
-    print(users)
-    
-    return render(request, 'add_users.html', locals())
+
 
 @csrf_exempt
 def add_user_to_private(request,chatroom):
