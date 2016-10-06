@@ -149,6 +149,22 @@ def channel(request, chatroom):
     room = lst1
     p_room = lst
     comments = Comments.objects.filter(channel__contains = chatroom)[0:100]
+    last = ""
+    new_comments= []
+    for i in range(len(comments)):
+        temp = {}
+        temp["user"] = comments[i].user
+        temp["text"] = comments[i].text
+        temp["timestamp"] = comments[i].timestamp
+        temp["last"] = False
+        if(comments[i].user == last):
+            temp["last"] = True
+        else:
+            last = comments[i].user
+            temp["last"] = False
+        new_comments.append(temp)
+
+    last_comment_user = str(comments[(len(comments)-1)].user)
     return render(request, 'home.html', locals())
 
 @login_required
