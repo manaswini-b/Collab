@@ -8,9 +8,11 @@ from django.utils import timezone
 # Create your models here.
 class Comments(models.Model):
 	user = models.ForeignKey(User)
-	text = models.CharField(max_length=255)
+	text = models.TextField()
 	channel = models.CharField(max_length=50)
 	timestamp = models.DateTimeField(db_index=True)
+	class Meta:
+		ordering = ['timestamp']
 
 
 class Channel(models.Model):

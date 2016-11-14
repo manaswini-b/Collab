@@ -8,7 +8,11 @@
   <script src="http://45.55.237.55:4000/socket.io/socket.io.js"></script>
       <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js"></script>
+  <script type="text/javascript"
+ src="//api.filestackapi.com/filestack.js"></script>
   <script>
+
   var socket;
     $(document).ready(function(){
       socket = io.connect('45.55.237.55', {port:4000});
@@ -26,26 +30,76 @@
         //Append message to the bottom of the list
         data = data.split('*');
         console.log(data);
-        var app;
-        if(data[0] == "{{user.username|safe }}"){
-          app = '<div class="panel panel-success" style="width:30%">';
-          if(last_comment_user != data[0]){
-            app += '<div class="panel-heading">'+data[0]+'<span style="float:right">'+data[2]+'</span></div>';
-            last_comment_user = data[0];
+        var app,editor1;
+        data_1 = data[1].split("^");
+        data[1] = data_1[0];
+        data[1] = unescape(data[1]);
+        if(data_1[1] == "sni"){
+          if(data[0] == "{{user.username|safe }}"){
+            app = '';
+            if(last_comment_user != data[0]){
+              app += '<strong><h3>'+data[0]+'&nbsp&nbsp<span style="font-size:12px;color:darkgrey"><strong>'+data[2]+'</strong></span></h3></strong>';
+              last_comment_user = data[0];
+            }
+            app += '<p style="margin-right:140px;height:150px;width:500px;" id="sni_'+data[2]+'">'+data[1]+'</p>';
           }
-          app += '<div class="panel-body">'+data[1]+'</div></div>';
+          else{
+             app = '';
+            if(last_comment_user != data[0]){
+              app += '<strong><h3>'+data[0]+'&nbsp&nbsp<span style="font-size:12px;color:darkgrey"><strong>'+data[2]+'</strong></span></h3></strong>';
+              last_comment_user = data[0];
+            }
+            app += '<p style="margin-right:140px;height:150px;width:500px;" id="sni_'+data[2]+'">'+data[1]+'</p>';
+          }
+          $('#comments').append(app);
+          $('#comments').animate({scrollTop: $('#comments').get(0).scrollHeight}, 0);
+          entry_el.focus();
+          editor1 = ace.edit("sni_"+data[2]);
+          editor1.setTheme("ace/theme/monokai");
+          editor1.getSession().setMode("ace/mode/javascript");
+        }
+        else if(data_1[1] == "doc"){
+          if(data[0] == "{{user.username|safe }}"){
+            app = '';
+            if(last_comment_user != data[0]){
+              app += '<strong><h3>'+data[0]+'&nbsp&nbsp<span style="font-size:12px;color:darkgrey"><strong>'+data[2]+'</strong></span></h3></strong>';
+              last_comment_user = data[0];
+            }
+            app += '<p style="margin-right:140px;"><a target="_blank" href="'+unescape(data_1[2])+'">'+data[1]+'</a></p>';
+          }
+          else{
+             app = '';
+            if(last_comment_user != data[0]){
+              app += '<strong><h3>'+data[0]+'&nbsp&nbsp<span style="font-size:12px;color:darkgrey"><strong>'+data[2]+'</strong></span></h3></strong>';
+              last_comment_user = data[0];
+            }
+            app += '<p style="margin-right:140px;"><a target="_blank" href="'+unescape(data_1[2])+'">'+data[1]+'</a></p>';
+          }
+          $('#comments').append(app);
+          $('#comments').animate({scrollTop: $('#comments').get(0).scrollHeight}, 0);
+          entry_el.focus();
         }
         else{
-           app = '<div class="panel panel-warning" style="width:30%;display:block;margin-left:  auto;margin-right: 0;">';
-          if(last_comment_user != data[0]){
-            app += '<div class="panel-heading">'+data[0]+'<span style="float:right">'+data[2]+'</span></div>';
-            last_comment_user = data[0];
+          if(data[0] == "{{user.username|safe }}"){
+            app = '';
+            if(last_comment_user != data[0]){
+              app += '<strong><h3>'+data[0]+'<span style="font-size:12px;color:darkgrey"><strong>'+data[2]+'</strong></span></h3></strong>';
+              last_comment_user = data[0];
+            }
+            app += '<p style="margin-right:140px">'+data[1]+'</p>';
           }
-          app += '<div class="panel-body">'+data[1]+'</div></div>';
+          else{
+             app = '';
+            if(last_comment_user != data[0]){
+              app += '<strong><h3>'+data[0]+'<span style="font-size:12px;color:darkgrey"><strong>'+data[2]+'</strong></span></h3></strong>';
+              last_comment_user = data[0];
+            }
+            app += '<p style="margin-right:140px">'+data[1]+'</p>';
+          }
+            $('#comments').append(app);
+            $('#comments').animate({scrollTop: $('#comments').get(0).scrollHeight}, 0);
+            entry_el.focus();
         }
-        $('#comments').append(app);
-           $('#comments').animate({scrollTop: $('#comments').get(0).scrollHeight}, 0);
-        entry_el.focus();
       });
                      
       entry_el.keypress(function(event){
@@ -53,9 +107,8 @@
         if(event.keyCode != 13) return;
           else{            
             var msg = $(".comment").val();
-            console.log(msg);
             if(msg){
-               socket.emit('send_message', "{{ chat }}~"+msg , function(data){
+               socket.emit('send_message', "{{ chat }}~"+escape(msg) , function(data){
                     console.log("{{ chat }}~"+msg);
                });
             $(".comment").val('');
@@ -66,7 +119,7 @@
           function typ(){
         var msg = $('.comment').val();
         if(msg){
-           socket.emit('send_message', "{{ chat }}~"+msg , function(data){
+           socket.emit('send_message', "{{ chat }}~"+escape(msg) , function(data){
                 console.log("{{ chat }}~"+msg);
            });
         
@@ -74,30 +127,53 @@
          $('.comment').val('');
         }
       }
+      function picupload(){
+        filepicker.pick({}, function(blob){
+            // Returned Stuff
+            var filename = blob.filename;
+            var url = blob.url;         
+            socket.emit('send_message', "{{ chat }}~"+filename+"^doc^"+url , function(data){
+                console.log(msg);
+           });
+        });  
+      }
+      function sni_click(){
+        var msg = editor.getValue();
+        if(msg){
+           socket.emit('send_message', "{{ chat }}~"+escape(msg)+"^sni" , function(data){
+                console.log(msg);
+           });
+        
+        //Clear input value   
+         //$('.comment').val('');
+         editor.setValue("");
+         $('.modal.two').modal('hide');
+        }
+      }
   </script>
      
 
 <!-- side bar -->
-<nav class="navbar navbar-inverse sidebar" role="navigation" >
-    <div class="container-fluid">
-    	<div class="navbar-header">
-      		<a class="navbar-brand" href="/" style="font-size:20px">Collab</a>
+<nav class="navbar navbar-inverse sidebar" role="navigation" style="background:white;border-right:1px dotted grey;z-index:0;">
+    <div class="container-fluid" style="background:white">
+    	<div class="navbar-header" style="border-bottom:1px dotted grey">
+      		<a class="navbar-brand" href="/" style="font-size:20px;margin-left:-15px;" hover-color:blue>Collab</a>
     	</div>
 
     	<div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
       		<ul class="nav navbar-nav">
-        		<li class="active" style="font-size:20px"><a href="/">Home<span style="font-size:16px;float:right;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+        		<li class="active" style="font-size:20px; background:white"><a style="background:white; color:black" href="/">Home<span style="font-size:16px;float:right;color:black"; class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
 
-          		<h4 style="color:white;margin-left:15px"> Public Channels({{ room|length }}) <a href="/add_channel/"><button style="color:black; border-radius:15px;" type="button">+</button></a></h4>
-              <ul style="overflow-y: scroll;height:200px;overflow-x: hidden;"> 
+          		<h4 style="color:black;margin-left:15px"> Public Channels({{ room|length }}) <a href="/add_channel/"><button style="color:black; border-radius:50%;" type="button">+</button></a></h4>
+              <ul style="overflow-y: auto;height:200px;overflow-x: hidden;"> 
             		{% for e in room %}
-              			<li style="margin-left:15px"><a href="/channel/{{e}}/"># {{e}}</a></li>
+              			<li style="margin-left:15px; "><a style="color:darkgrey" href="/channel/{{e}}/"># {{e}}</a></li>
             		{% endfor %}
               </ul>
-          		<h4 style="color:white;margin-left:15px">Private Channels({{ p_room|length }}) <a href="/add_pchannel/"><button style="color:black; border-radius:15px;" type="button">+</button></a></h4>
-              <ul style="overflow-y: scroll;height:200px;overflow-x: hidden;">
+          		<h4 style="color:black;margin-left:15px">Private Channels({{ p_room|length }}) <a href="/add_pchannel/"><button style="color:black; border-radius:50%;" type="button">+</button></a></h4>
+              <ul style="overflow-y: auto;height:200px;overflow-x: hidden;">
             		{% for e in p_room %}
-              			<li style="margin-left:15px"><a href="/p_channel/{{e}}/"># {{e}}</span></a></li>
+              			<li style="margin-left:15px; "><a style="color:darkgrey" href="/p_channel/{{e}}/"># {{e}}</span></a></li>
             		{% endfor %}
             </ul>
 
@@ -123,14 +199,20 @@
             {% endfor %}
 
             {% if chnl_type == "private" %}
-            <button class="btn btn-primary" onclick="$('.modal').modal('show');" >Add Users</button>
+              {% if usr == cnl_admin %}
+                <button class="btn btn-primary" onclick="$('.modal.one').modal('show');" >Add Users</button>
+              {% endif %}
+            {% else %}
+              <button class="btn btn-primary" onclick="$('.modal.one').modal('show');" >Add Users</button>
+            {% endif %}
             	
-			{% endif %}
+			
           </ul>
+            
         </li>
       </ul>
 </div>
-<div class="modal fade bs-example-modal-lg"  tabindex="-1" aria-labelledby="myLargeModalLabel">
+<div class="modal fade bs-example-modal-lg one"  tabindex="-1" aria-labelledby="myLargeModalLabel">
   					<div class="modal-dialog modal-l" role="document">
     					<div class="modal-content">
       						<div class="modal-header">
@@ -158,6 +240,22 @@
     					</div>
   					</div>
 				</div>
+<div class="modal fade bs-example-modal-lg two"  tabindex="-1" aria-labelledby="myLargeModalLabel">
+            <div class="modal-dialog modal-l" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"> </span></button>
+                    <h4 class="modal-title" id="myLargeModalLabel">New Snippet</h4>
+                  </div>
+                  <div class="modal-body" style="height:400px">
+                  <div id="editor" style="height:300px"></div>
+                    <br/><br/>
+                    <button type="button" class="btn btn-secondary" style="float:right" data-dismiss="modal">Cancel</button>
+                    <button id="two_but"  class="btn btn-primary" onclick="sni_click()">Submit</button>
+                  </div>
+              </div>
+            </div>
+        </div>
 <div class="navbar navbar-default navbar-fixed-top">
       <button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".navmenu" data-canvas="container">
         <span class="icon-bar"></span>
@@ -179,46 +277,98 @@
     	{% endif %}
     </div>
     <div id="comments" style="overflow-y:auto; margin-top:280px; margin:40px 100px 30px 70px;padding-top: 20px;position: absolute; top:40px; width: 75%; bottom: 0px;word-wrap: break-word">
-    	{% if chat == "general" %}
+    	{% if chat == "collab_general" %}
     		<h2 style="padding-top: 10px; text-align: left"> Hi {{ user.username }}, Welcome to Collab </h2>
     	{% endif %}
         
-          {% for comment in new_comments %}
+        {% for comment in new_comments %}
+          {% if comment.type == "sni" %} <!-- for snippets display -->
             {% if comment.user|safe == user.username|safe %}
 
-            	<div class="panel panel-success" style="max-width:35%;display:block;word-wrap: break-word">  
+            	<!-- <div class="panel panel-success" style="max-width:35%;display:block;word-wrap: break-word"> -->  
               {% if not comment.last  %}
-                <div class="panel-heading" style="word-wrap: break-word;">{{comment.user}}<span style="float:right">{{comment.timestamp}}</span>
-                </div>
+                <strong><h3>{{comment.user}} <span style="font-size:12px;color:darkgrey"><strong>{{comment.timestamp}}</strong></span></h3></strong>
+                
+                
               {% endif %}
-                <div class="panel-body" style="display:block;word-wrap: break-word">{{comment.text}}
-                </div>
-              </div>
+                <p style="margin-right:140px;height:150px;width:500px;" id="sni_{{comment.timestamp}}">{{comment.text}}</p>
+                
+              <!-- </div> -->
 
             {% else %}
-            	<div class="panel panel-warning" style="max-width:35%;display:block;margin-left:auto;margin-right: 60px;word-wrap: break-word">	
+            	<!-- <div class="panel panel-warning" style="max-width:35%;display:block;margin-left:auto;margin-right: 60px;word-wrap: break-word"> -->	
               {% if not comment.last  %}
-            		<div class="panel-heading" style="word-wrap: break-word">{{comment.user}}<span style="float:right">{{comment.timestamp}}</span>
-            		</div>
+            		<strong><h3>{{comment.user}} <span style="font-size:12px;color:darkgrey"><strong>{{comment.timestamp}}</strong></span></h3></strong>
+            		
               {% endif %}
-            		<div class="panel-body" style="display:block;word-wrap: break-word">{{comment.text}}
-            		</div>
-            	</div>
+                <p style="margin-right:140px;height:150px;width:500px;" id="sni_{{comment.timestamp}}">{{comment.text}}</p>
+            		
+            	
             {% endif %}
-          {% endfor %}
+          {% elif comment.type == "doc" %} <!-- for snippets display -->
+            {% if comment.user|safe == user.username|safe %}
+
+              <!-- <div class="panel panel-success" style="max-width:35%;display:block;word-wrap: break-word"> -->  
+              {% if not comment.last  %}
+                <strong><h3>{{comment.user}} <span style="font-size:12px;color:darkgrey"><strong>{{comment.timestamp}}</strong></span></h3></strong>
+                
+                
+              {% endif %}
+                <p style="margin-right:140px;" id="sni_{{comment.timestamp}}"><a target="_blank" href="{{comment.url}}">{{comment.text}}</a></p>
+                
+              <!-- </div> -->
+
+            {% else %}
+              <!-- <div class="panel panel-warning" style="max-width:35%;display:block;margin-left:auto;margin-right: 60px;word-wrap: break-word"> -->  
+              {% if not comment.last  %}
+                <strong><h3>{{comment.user}} <span style="font-size:12px;color:darkgrey"><strong>{{comment.timestamp}}</strong></span></h3></strong>
+                
+              {% endif %}
+                <p style="margin-right:140px;" id="sni_{{comment.timestamp}}"><a target="_blank" href="{{comment.url}}">{{comment.text}}</a></p>
+                
+              
+            {% endif %}
+          {% else %} <!-- for msgs display -->
+            {% if comment.user|safe == user.username|safe %}
+
+              <!-- <div class="panel panel-success" style="max-width:35%;display:block;word-wrap: break-word"> -->  
+              {% if not comment.last  %}
+                <strong><h3>{{comment.user}} <span style="font-size:12px;color:darkgrey"><strong>{{comment.timestamp}}</strong></span></h3></strong>
+                
+                
+              {% endif %}
+                <p style="margin-right:140px">{{comment.text}}</p>
+                
+              <!-- </div> -->
+
+            {% else %}
+              <!-- <div class="panel panel-warning" style="max-width:35%;display:block;margin-left:auto;margin-right: 60px;word-wrap: break-word"> -->  
+              {% if not comment.last  %}
+                <strong><h3>{{comment.user}} <span style="font-size:12px;color:darkgrey"><strong>{{comment.timestamp}}</strong></span></h3></strong>
+                
+              {% endif %}
+                <p style="margin-right:140px">{{comment.text}}</p>
+                
+              
+            {% endif %}
+          {% endif %}
+        {% endfor %}
         
     
     	<br/>
     	<div class="input-group" style="bottom:0; position:fixed; width:70%; padding-bottom:6px;">
-      		<input style="border:1px solid black; " type="text" class="form-control comment" placeholder="Type..">
+      		<input style="border:1px solid black; " type="text" class="form-control comment" placeholder="Type.." >
+
+
       		<span class="input-group-btn">
+            <button class="btn btn-default" onclick="typ1();$('.modal.two').modal('show');" type="button" style="border:1px solid black; color:black">Snippet</button>
+            <button class="btn btn-default" onclick="picupload()" type="button" style="border:1px solid black; color:black">Docs</button>
         		<button class="btn btn-default" onclick="typ()" type="button" style="border:1px solid black; color:black">Send</button>
       		</span>
     	</div>
     </div>
     <!-- {% endif %} -->
 </div><!-- /.container -->
-
 <style type="text/css">
 html, body {
   height: 100%;
@@ -334,6 +484,8 @@ nav:hover .forAnimate{
     opacity: 1;
   } 
 
+
+
 </style>
 
 <script type="text/javascript">
@@ -397,18 +549,32 @@ function sub_function(){
     }
   });
   }
-{% if chnl_type == "private" %}
-{% if access_user|length == 1 %}
-$('.modal').modal('show');
-{% endif %}
-{% endif %}
+// {% if chnl_type == "private" %}
+// {% if access_user|length == 1 %}
+// $('.modal').modal('show');
+// {% endif %}
+// {% endif %}
+
+filepicker.setKey("Ajc3dOofXR9i7B7sihpWrz");
 
 $(document).ready(function(){
   $('#comments').animate({
   scrollTop: $('#comments').get(0).scrollHeight}, 0);
 });
+var editor;
+function typ1(){
+    editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/javascript");
+}
 
-
+{% for comment in new_comments %}
+  {% if comment.type == "sni" %}
+    var editor1 = ace.edit("sni_{{comment.timestamp}}");
+    editor1.setTheme("ace/theme/monokai");
+    editor1.getSession().setMode("ace/mode/javascript");
+  {% endif %} 
+{% endfor%}
 </script>
 
 {% endblock %}

@@ -3,29 +3,29 @@
 {% block content %}
 
 <!-- sidebar -->
-<nav class="navbar navbar-inverse sidebar" role="navigation" >
-    <div class="container-fluid">
-    	<div class="navbar-header">
+<nav class="navbar navbar-inverse sidebar" role="navigation" style="background:white;border-right:1px dotted grey">
+    <div class="container-fluid" style="background:white">
+    	<div class="navbar-header" style="border-bottom:1px dotted grey">
       		<a class="navbar-brand" href="/" style="font-size:20px">Collab</a>
     	</div>
 
+
     	<div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
       		<ul class="nav navbar-nav">
-        		<li class="active" style="font-size:20px"><a href="/">Home<span style="font-size:16px;float:right;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+        		<li class="active" style="font-size:20px; background:white"><a style="background:white; color:black" href="/">Home<span style="font-size:16px;float:right;color:black"; class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
 
-          		<h4 style="color:white;margin-left:15px"> Public Channels({{ room|length }}) <button style="color:black; border-radius:15px;" onclick="window.location='/add_channel/';" type="button">+</button></h4>
-            		<ul style="overflow-y: scroll;height:200px;overflow-x: hidden;"> 
+          		<h4 style="color:black;margin-left:15px"> Public Channels({{ room|length }}) <a href="/add_channel/"><button style="color:black; border-radius:50%;" type="button">+</button></a></h4>
+              <ul style="overflow-y: auto;height:200px;overflow-x: hidden;"> 
             		{% for e in room %}
-              			<li style="margin-left:15px"><a href="/channel/{{e}}/"># {{e}}</a></li>
+              			<li style="margin-left:15px; "><a style="color:darkgrey" href="/channel/{{e}}/"># {{e}}</a></li>
             		{% endfor %}
               </ul>
-
-          		<h4 style="color:white;margin-left:15px">Private Channels({{ p_room|length }})<button style="color:black; border-radius:15px;" onclick="window.location='/add_pchannel/';" type="button">+</button></h4>
-          		<ul style="overflow-y: scroll;height:200px;overflow-x: hidden;">
+          		<h4 style="color:black;margin-left:15px">Private Channels({{ p_room|length }}) <a href="/add_pchannel/"><button style="color:black; border-radius:50%;" type="button">+</button></a></h4>
+              <ul style="overflow-y: auto;height:200px;overflow-x: hidden;">
             		{% for e in p_room %}
-              			<li style="margin-left:15px"><a href="/p_channel/{{e}}/"># {{e}}</span></a></li>
+              			<li style="margin-left:15px; "><a style="color:darkgrey" href="/p_channel/{{e}}/"># {{e}}</span></a></li>
             		{% endfor %}
-            	</ul>
+            </ul>
 
       		</ul>
 
@@ -34,7 +34,7 @@
 </nav>
 
 <!-- push menu -->
-<div class="navmenu navmenu-default navmenu-fixed-right offcanvas">
+<div class="navmenu navmenu-default navmenu-fixed-right offcanvas" >
      <a class="navmenu-brand" href="/">{{user.username}}</a>
       <ul class="nav navmenu-nav">
         <li><a href="/logout/">Logout</a></li>
@@ -52,18 +52,56 @@
 
 <div class="container" style="padding:60px 0px 0px 200px">
 	
-	{% if chnl_type == "general" %}
+	{% if chnl_type == "public" %}
 		<h2> Create Public Channel </h2>
+		
+		<h4> You are attempting to create a public channel. All the users in the channel have accessiblity to add other users to this channel. Select your users from below </h4>
+		
+		<form action="/add_new_channel" method="POST" onsubmit="return sub()">
 		<input style="width:80%; height:30px;" type="text" name="page_name" id="room" placeholder = " channel name"/>
 		<br/>
-		<button style="color:black; height:30px; width:20%; margin-top:20px" onclick="sub()">create</button>
+			<h2 style="font-size:25px; padding-top:15px;"> Select your Users</h2>
+			{% if users1 %}
+				<select multiple style="width:60%; height:250px; padding-left:20px; padding-top:20px;"  id="alpha" name="select_user[]">
+				 <div class="form-horizontal" role="form">
+				{% for usrr in users1 %}
+				{% if usrr != cnl.admin %}
+					<<option class="list-group"  value="{{usrr}}">{{usrr}}</option>
+
+				{% endif %}
+				{% endfor %}
+				</div>
+				</select>
+				
+			{% endif %}
+      	<br/>						
+		<button type="submit" style="color:black; height:30px; width:20%; margin-top:20px">create</button>
+		</form>
 	
 	{% elif chnl_type == "private" %}
 		<h2> Create Private Channel </h2>
+		<h4> You are attempting to create a private channel. Only you can add users to this channel. Select your users from below </h4>
+		<form action="/add_new_pchannel" method="POST" onsubmit="return sub1()">
 		<input style="width:80%; height:30px;" type="text" name="page_name" id="proom" placeholder = "channel name"/>
-		<br/>
-		<button style="color:black; height:30px; width:20%; margin-top:20px" onclick="sub1()">create</button>
-     	
+		<br/><br/>
+			<h2 style="font-size:25px; padding-top:15px;"> Select your Users</h2>
+			{% if users1 %}
+				
+				<select multiple style="width:60%; height:250px; padding-left:20px; padding-top:20px;"  id="alpha" name="select_user[]">
+				 <div class="form-horizontal" role="form">
+				{% for usrr in users1 %}
+				{% if usrr != cnl.admin %}
+					<<option class="list-group"  value="{{usrr}}">{{usrr}}</option>
+
+				{% endif %}
+				{% endfor %}
+				</div>
+				</select>
+				
+			{% endif %}
+      	<br/>					
+		<button type="submit" style="color:black; height:30px; width:20%; margin-top:20px" ">create</button>
+     	</form>
       
     </div>
 	{% endif %}
@@ -78,6 +116,7 @@ html, body {
 body {
   padding: 50px 0 0 0;
 }
+make it fast 
 
 .navbar-toggle {
   float: right;
@@ -187,30 +226,30 @@ function sub() {
 	var room = document.getElementById('room').value;
 	if(room.replace(/ /g,'') == ''){
 		alert("Channel name should not be empty or spaces");
+		return false;
 	}
-	else
-	window.location = '/channel/'+room;
+	else{
+		window.location = '/channel/'+room;
+	}
+	
 //   $('.btn').click(function(room) {
 //   if ($('input').val() === '') {
 //     e.preventDefault();
-//     alert('input is empty');
+//     alert('input is empty'); 
 //   }
 // });
 }
+
 
 function sub1() {
     var room = document.getElementById('proom').value;
     if(room.replace(/ /g,'') == ''){
 		alert("Channel name should not be empty or spaces");
+		return false;
 	}
-	else
-    window.location = '/p_channel/'+room;
-//     $('.btn').click(function(room) {
-//   if ($('input').val() === '') {
-//     e.preventDefault();
-//     alert('input is empty');
-//   }
-// });
+	else{
+		window.location = '/channel/'+room;
+	}
 }
 
 function htmlbodyHeightUpdate(){
@@ -270,6 +309,7 @@ function sub_function(){
     }
   });
   }
+
 
 </script>
 

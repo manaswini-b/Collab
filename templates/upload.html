@@ -1,0 +1,8 @@
+<center style="margin-top:18%">
+<h2> Upload your zip file here </h2>
+<form role="form" method="post" action="/file_upload" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form }}
+    <br/><br/><br/>
+    <button  type="submit">Save</button>
+</form></center>

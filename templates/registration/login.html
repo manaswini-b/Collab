@@ -20,15 +20,18 @@
    </div>
 </nav>
 </div> 
-    {% if form.errors %}
-
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+  
 
 
 
 <div class="container">
+
     <br/><br/><br/><br/>
+  {% if form.errors %}
+
+<center><p>Your username and password didn't match. Please try again.</p></center>
+{% endif %}
+    <br/><br/>
     <div class="row">
         <div class="col-md-4 col-md-offset-4" style="padding-top:60px;">
             <div class="login-panel panel panel-default">
@@ -63,6 +66,7 @@
                 </div>
             </div>
             <p style="text-align:center"> New User? <a href="/register"> Register </a></p>
+            <p style="text-align:center"><a href="/file_upload"> Upload your Slack extract file </a></p>
         </div>
     </div>
 </div>

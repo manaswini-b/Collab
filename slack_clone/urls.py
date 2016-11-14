@@ -34,5 +34,9 @@ urlpatterns = [
     url(r'^add_channel/$', add_channel),
     url(r'^add_pchannel/$', add_pchannel),
     url(r'^add_users/(?P<chatroom>[^/]*)/$', add_user_to_private),
+    url(r'^check_channel/(?P<chatroom>[^/]*)/$', check_add_channel),
+    url(r'^add_new_channel$', new_channel),
+    url(r'^add_new_pchannel$', new_pchannel),
+    url(r'^file_upload$',upload),
     
 ]
